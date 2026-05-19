@@ -79,5 +79,7 @@ def recommend():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    # Start the server on port 5000
-    app.run(debug=True, port=5000)
+    # Use Waitress for a production WSGI server
+    from waitress import serve
+    print("Starting Waitress production server on port 5000...")
+    serve(app, host="0.0.0.0", port=5000)

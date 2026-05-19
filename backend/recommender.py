@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 import requests
+from functools import lru_cache
 
 class MovieRecommender:
     def __init__(self, data_path='imdb_top_1000.csv'):
@@ -202,6 +203,7 @@ class MovieRecommender:
         self.vectorizer = TfidfVectorizer(stop_words='english')
         self.feature_matrix = self.vectorizer.fit_transform(self.df['combined_features'])
 
+    @lru_cache(maxsize=1)
     def get_dynamic_genres(self):
         """Dynamically extracts all unique genres and their popular counts from the database."""
         genre_counts = {}
@@ -215,6 +217,7 @@ class MovieRecommender:
         sorted_genres = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
         return [genre for genre, count in sorted_genres[:15]]
 
+    @lru_cache(maxsize=1)
     def get_top_stars(self):
         """Extracts the top 30 most popular actors present in the dataset."""
         star_counts = {}
@@ -226,11 +229,13 @@ class MovieRecommender:
         sorted_stars = sorted(star_counts.items(), key=lambda x: x[1], reverse=True)
         return [star for star, count in sorted_stars[:30]]
 
+    @lru_cache(maxsize=128)
     def get_trending_popularity(self, top_n=10):
         """Ranks movies using the precalculated IMDb Weighted Rating formula."""
         top_movies = self.df.sort_values(by='weighted_score', ascending=False).head(top_n)
         return self._format_results(top_movies, is_popularity=True)
 
+    @lru_cache(maxsize=128)
     def search_movies(self, query, top_n=8):
         """Searches titles by simple matching for autocomplete suggestions."""
         if not query:
