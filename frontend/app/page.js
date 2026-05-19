@@ -771,7 +771,7 @@ export default function Home() {
                             theme === 'dark' ? 'hover:bg-white/5 border-white/5' : 'hover:bg-slate-50 border-slate-100'
                           }`}
                         >
-                          <img src={movie.poster} alt={movie.title} referrerPolicy="no-referrer" className="w-10 h-14 object-cover rounded-md flex-shrink-0" />
+                          <img src={cleanPosterUrl(movie.poster)} alt={movie.title} referrerPolicy="no-referrer" className="w-10 h-14 object-cover rounded-md flex-shrink-0" />
                           <div className="flex-grow min-w-0">
                             <h4 className={`text-sm font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{movie.title}</h4>
                             <div className="flex items-center gap-2 text-xs text-neutral-400 mt-1">
@@ -993,14 +993,14 @@ export default function Home() {
                 <div className="md:col-span-4 relative rounded-2xl overflow-hidden bg-neutral-950 aspect-[2/3] md:aspect-auto md:h-full min-h-[300px]">
                   {/* Blurred background layer to prevent black side bars */}
                   <img 
-                    src={activeDetailMovie.poster} 
+                    src={cleanPosterUrl(activeDetailMovie.poster)} 
                     alt="" 
                     referrerPolicy="no-referrer"
                     className="absolute inset-0 w-full h-full object-cover filter blur-xl opacity-30 scale-110 pointer-events-none"
                   />
                   {/* Clean foreground layer - 100% uncropped poster */}
                   <img 
-                    src={activeDetailMovie.poster} 
+                    src={cleanPosterUrl(activeDetailMovie.poster)} 
                     alt={activeDetailMovie.movie} 
                     referrerPolicy="no-referrer"
                     className="absolute inset-0 w-full h-full object-contain p-2 z-10 shadow-2xl"
@@ -1257,6 +1257,14 @@ export default function Home() {
   );
 }
 
+const cleanPosterUrl = (url) => {
+  if (!url) return "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=600&auto=format&fit=crop";
+  if (typeof url === 'string' && url.includes('._V1_')) {
+    return url.split('._V1_')[0] + '._V1_.jpg';
+  }
+  return url;
+};
+
 /* Helper Cards Components */
 
 function MovieCard({ movie, index, onOpenDetails, theme }) {
@@ -1277,14 +1285,14 @@ function MovieCard({ movie, index, onOpenDetails, theme }) {
       <div className="aspect-[2/3] overflow-hidden bg-neutral-950 relative w-full border-b border-transparent">
         {/* Blurred background layer to prevent black side bars */}
         <img 
-          src={movie.poster} 
+          src={cleanPosterUrl(movie.poster)} 
           alt="" 
           referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover filter blur-xl opacity-30 scale-110 pointer-events-none"
         />
         {/* Clean foreground layer - 100% uncropped poster */}
         <img 
-          src={movie.poster} 
+          src={cleanPosterUrl(movie.poster)} 
           alt={movie.movie}
           referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-contain p-2 z-10 transition-transform duration-700 group-hover:scale-105"

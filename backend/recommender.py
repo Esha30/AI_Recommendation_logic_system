@@ -157,7 +157,16 @@ class MovieRecommender:
         self.df['Released_Year'] = self.df['Released_Year'].astype(str).fillna('2020')
         self.df['Runtime'] = self.df['Runtime'].astype(str).fillna('100 min')
         self.df['Certificate'] = self.df['Certificate'].fillna('U')
-        self.df['Poster_Link'] = self.df['Poster_Link'].fillna('https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=600&auto=format&fit=crop')
+        
+        # Strip CDN-level hard cropping parameters to fetch high-resolution, uncropped original posters
+        def clean_poster_url(url):
+            if pd.isna(url) or not isinstance(url, str):
+                return 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=600&auto=format&fit=crop'
+            if '._V1_' in url:
+                return url.split('._V1_')[0] + '._V1_.jpg'
+            return url
+            
+        self.df['Poster_Link'] = self.df['Poster_Link'].apply(clean_poster_url)
         
         # Star members
         for col in ['Star1', 'Star2', 'Star3', 'Star4']:
