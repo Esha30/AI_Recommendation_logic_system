@@ -1274,7 +1274,7 @@ function MovieCard({ movie, index, onOpenDetails, theme }) {
       onClick={() => onOpenDetails(movie)}
     >
       {/* Poster area */}
-      <div className="aspect-[2/3] overflow-hidden bg-neutral-950 relative w-full">
+      <div className="aspect-[2/3] overflow-hidden bg-neutral-950 relative w-full border-b border-transparent">
         {/* Blurred background layer to prevent black side bars */}
         <img 
           src={movie.poster} 
@@ -1287,58 +1287,45 @@ function MovieCard({ movie, index, onOpenDetails, theme }) {
           src={movie.poster} 
           alt={movie.movie}
           referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-contain p-2.5 z-10 transition-transform duration-700 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-contain p-2 z-10 transition-transform duration-700 group-hover:scale-105"
           onError={(e) => {
             e.target.src = "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=600&auto=format&fit=crop";
           }}
         />
         
-        {/* Glow overlay effect - Vignette adjusted for 100% crystal-clear clarity */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${
-          theme === 'dark' 
-            ? 'from-black/90 via-black/15 to-transparent' 
-            : 'from-white/95 via-white/10 to-transparent'
-        } opacity-50 transition-opacity duration-300 group-hover:opacity-30`} />
-        
         {/* Score circular floating marker */}
-        <div className="absolute top-4 right-4 bg-black/75 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-xl text-[10px] font-black text-emerald-400 tracking-wider flex items-center gap-1 shadow-md">
+        <div className="absolute top-3 right-3 bg-black/75 backdrop-blur-md border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[9px] font-black text-emerald-400 tracking-wider flex items-center gap-1 shadow-md z-20">
           <Sparkles size={10} className="fill-emerald-400/20" />
           <span>{movie.score}% MATCH</span>
-        </div>
-
-        {/* Brief information bottom layout */}
-        <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between z-10">
-          <div className="flex flex-wrap gap-1.5 max-w-[85%]">
-            {movie.genre.split(',').slice(0, 2).map(g => (
-              <span key={g} className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${
-                theme === 'dark'
-                  ? 'text-white bg-black/60 backdrop-blur-md border-white/5'
-                  : 'text-slate-800 bg-white/80 backdrop-blur-md border-slate-200'
-              }`}>
-                {g.trim()}
-              </span>
-            ))}
-          </div>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border flex items-center gap-1 ${
-            theme === 'dark'
-              ? 'text-neutral-400 bg-black/60 backdrop-blur-md border-white/5'
-              : 'text-slate-600 bg-white/80 backdrop-blur-md border-slate-200'
-          }`}>
-            <Clock size={10} /> {movie.runtime.split(' ')[0]} min
-          </span>
         </div>
       </div>
 
       {/* Card Info details */}
       <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
-        <div className="space-y-1">
+        <div className="space-y-2.5">
           <h3 className={`font-extrabold text-lg line-clamp-1 group-hover:text-indigo-400 transition-colors ${
             theme === 'dark' ? 'text-white' : 'text-slate-900'
           }`}>{movie.movie}</h3>
-          <div className="flex items-center gap-2 text-xs text-neutral-500 font-semibold">
+          
+          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 font-semibold">
             <span>{movie.year}</span>
             <span>•</span>
             <span className="flex items-center gap-0.5 text-yellow-500"><Star size={12} className="fill-yellow-500" /> {movie.rating}</span>
+            <span>•</span>
+            <span className="flex items-center gap-1"><Clock size={12} /> {movie.runtime.split(' ')[0]} min</span>
+          </div>
+
+          {/* Category tags moved here under the title to keep the poster 100% clean */}
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {movie.genre.split(',').slice(0, 2).map(g => (
+              <span key={g} className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${
+                theme === 'dark'
+                  ? 'text-neutral-300 bg-white/5 border-white/10'
+                  : 'text-slate-700 bg-slate-100 border-slate-200'
+              }`}>
+                {g.trim()}
+              </span>
+            ))}
           </div>
         </div>
 
