@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 95%;
+  }
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Arial, Helvetica, sans-serif;
+}
