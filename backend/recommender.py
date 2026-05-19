@@ -322,9 +322,10 @@ class MovieRecommender:
             # Generate a match score: if similarity is present, use it. Else, use rating percentile.
             if 'similarity' in row:
                 score = round(row['similarity'] * 100, 1)
-                # Boost score slightly to make UI feel very matching, ceiling at 99.5
+                # Boost score, floor at 55, ceiling at 99.5
                 if score > 0:
                     score = min(round(score * 1.5 + 20, 1), 99.5)
+                    score = max(score, 55.0)  # Minimum floor - any match is at least 55%
             else:
                 # For popularity, match score represents overall movie quality rank
                 score = round((row['weighted_score'] / 10.0) * 100, 1)

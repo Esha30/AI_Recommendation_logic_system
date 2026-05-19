@@ -676,7 +676,7 @@ export default function Home() {
                         {Array(6).fill(0).map((_, i) => <ShimmerCard key={i} theme={theme} />)}
                       </div>
                     ) : recommendations.length > 0 ? (
-                      <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="grid sm:grid-cols-2 gap-6" style={{perspective: '1200px'}}>
                         {recommendations.map((rec, index) => (
                           <MovieCard 
                             key={rec.movie} 
@@ -891,7 +891,7 @@ export default function Home() {
                         {Array(6).fill(0).map((_, i) => <ShimmerCard key={i} theme={theme} />)}
                       </div>
                     ) : recommendations.length > 0 ? (
-                      <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="grid sm:grid-cols-2 gap-6" style={{perspective: '1200px'}}>
                         {recommendations.map((rec, index) => (
                           <MovieCard 
                             key={rec.movie} 
@@ -961,7 +961,7 @@ export default function Home() {
                 {Array(8).fill(0).map((_, i) => <ShimmerCard key={i} theme={theme} />)}
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{perspective: '1200px'}}>
                 {trendingMovies.map((rec, index) => (
                   <MovieCard 
                     key={rec.movie} 
@@ -1295,9 +1295,13 @@ export default function Home() {
 }
 
 const cleanPosterUrl = (url) => {
-  if (!url) return "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=600&auto=format&fit=crop";
-  if (typeof url === 'string' && url.includes('._V1_')) {
-    return url.split('._V1_')[0] + '._V1_.jpg';
+  const fallback = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=600&auto=format&fit=crop";
+  if (!url || typeof url !== 'string') return fallback;
+  // Strip Amazon CDN crop/resize parameters to get full-res original
+  if (url.includes('._V1_')) {
+    const base = url.split('._V1_')[0];
+    // Try SX300 (300px wide, uncropped proportional) as it's most reliably served
+    return base + '._V1_SX300_.jpg';
   }
   return url;
 };
