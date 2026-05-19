@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { 
   Clapperboard, Star, Sparkles, Loader2, ArrowRight, 
   Search, Heart, User, Film, Calendar, Clock, Plus, 
   Trash2, X, Eye, Award, Sliders, Flame, ArrowLeft, RefreshCw,
-  Sun, Moon, LogIn, LogOut, Check
+  Sun, Moon, LogIn, LogOut, Check, Cpu
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:5000';
@@ -48,6 +48,7 @@ export default function Home() {
   const [likedMovies, setLikedMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [hoveredMovie, setHoveredMovie] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   
   // Recommendations and items
@@ -321,6 +322,26 @@ export default function Home() {
       theme === 'dark' ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'
     }`}>
       
+      {/* Ambient Cinematic Backdrop */}
+      <AnimatePresence>
+        {hoveredMovie && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
+          >
+            <img 
+              src={cleanPosterUrl(hoveredMovie.poster)} 
+              alt="ambient" 
+              className="w-full h-full object-cover filter blur-[120px] scale-150 saturate-200 opacity-30"
+            />
+            <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-black/70' : 'bg-slate-50/70'}`} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Decorative Glow Elements */}
       <div className={`absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[150px] pointer-events-none transition-all duration-300 ${
         theme === 'dark' ? 'bg-indigo-500/10' : 'bg-indigo-500/5'
@@ -663,6 +684,7 @@ export default function Home() {
                             index={index} 
                             onOpenDetails={setActiveDetailMovie} 
                             theme={theme}
+                            onHover={setHoveredMovie}
                           />
                         ))}
                       </div>
@@ -877,6 +899,7 @@ export default function Home() {
                             index={index} 
                             onOpenDetails={setActiveDetailMovie} 
                             theme={theme}
+                            onHover={setHoveredMovie}
                           />
                         ))}
                       </div>
@@ -946,6 +969,7 @@ export default function Home() {
                     index={index} 
                     onOpenDetails={setActiveDetailMovie} 
                     theme={theme}
+                    onHover={setHoveredMovie}
                   />
                 ))}
               </div>
@@ -1049,6 +1073,19 @@ export default function Home() {
                         {activeDetailMovie.overview}
                       </p>
                     </div>
+
+                    {/* AI Reasoning Explainer */}
+                    {activeDetailMovie.reasoning && (
+                      <div className={`mt-6 p-5 rounded-2xl border shadow-inner ${theme === 'dark' ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
+                        <div className="flex items-center gap-2 mb-2 text-indigo-500">
+                          <Cpu size={16} />
+                          <span className="text-xs font-black uppercase tracking-widest">AI Neural Reasoning</span>
+                        </div>
+                        <p className={`text-sm leading-relaxed italic font-medium ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>
+                          "{activeDetailMovie.reasoning}"
+                        </p>
+                      </div>
+                    )}
 
                     {/* Credits list */}
                     <div className="grid sm:grid-cols-2 gap-4 pt-2">
@@ -1267,14 +1304,43 @@ const cleanPosterUrl = (url) => {
 
 /* Helper Cards Components */
 
-function MovieCard({ movie, index, onOpenDetails, theme }) {
+function MovieCard({ movie, index, onOpenDetails, theme, onHover }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    x.set(mouseX / width - 0.5);
+    y.set(mouseY / height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+    if (onHover) onHover(null);
+  };
+
   return (
     <motion.div
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className={`group relative border rounded-3xl overflow-hidden shadow-lg flex flex-col cursor-pointer transition-all duration-300 ${
+      whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => onHover && onHover(movie)}
+      className={`group relative border rounded-3xl overflow-hidden shadow-lg flex flex-col cursor-pointer transition-colors duration-300 ${
         theme === 'dark'
           ? 'bg-neutral-900/40 border-white/5 hover:bg-neutral-900/80 hover:border-indigo-500/30'
           : 'bg-white border-slate-200/80 hover:bg-slate-50 hover:border-indigo-500/20'
